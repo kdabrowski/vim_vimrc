@@ -2,16 +2,23 @@ set nocompatible " be iMproved
 
 " For vundle
 filetype off
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" For Patogen
+execute pathogen#infect()
 
 " Dependencies of snipmate
 Bundle "MarcWeber/vim-addon-mw-utils"
 Bundle "tomtom/tlib_vim"
 Bundle "honza/vim-snippets"
+Bundle "mattn/emmet-vim"
 
 "Emblem highlighting support
 Bundle 'heartsentwined/vim-emblem'
+
+"Javascript completion
+Bundle 'ternjs/tern_for_vim'
 
 " Good looking bottom :)
 Bundle 'vim-airline/vim-airline'
@@ -44,8 +51,6 @@ Bundle 'ervandew/supertab'
 Bundle 'kchmck/vim-coffee-script'
 " Fuzzu finder for vim (CTRL+P)
 Bundle 'kien/ctrlp.vim'
-" Ruby Tests
-Bundle 'skalnik/vim-vroom'
 " Easy motion for easy motion
 Bundle 'Lokaltog/vim-easymotion'
 " Running tests in tmux session Bundle 'tpope/vim-dispatch'
@@ -60,10 +65,21 @@ Bundle 'danro/rename.vim'
 
 Bundle 'nono/vim-handlebars'
 Bundle 'ngmy/vim-rubocop'
-Bundle 'crooloose/nerdtree'
+Bundle 'pangloss/vim-javascript'
+Bundle 'jelera/vim-javascript-syntax'
+Bundle 'mxw/vim-jsx'
 
 " Autoformatting tool for RoR
 Bundle 'KurtPreston/vim-autoformat-rails'
+
+" Nerdtree
+Bundle 'scrooloose/nerdtree'
+
+" Vim-Rspec
+Bundle 'thoughtbot/vim-rspec'
+
+" Vue
+Bundle 'posva/vim-vue'
 
 set grepprg=ack-grep " Set ACK as a default grep
 set tags=./tags; " Set tags directory
@@ -80,7 +96,7 @@ augroup myfiletypes
 	" Clear old autocmds in group
 	autocmd!
 	" autoindent with two spaces, always expand tabs
-	autocmd FileType ruby,javascript,eruby,yaml,markdown,coffee,html,emblem,js,hbs set ai sw=2 sts=2 et
+	autocmd FileType ruby,javascript,eruby,yaml,markdown,coffee,html,handlebars,hbs,js,vue set ai sw=2 sts=2 et
 augroup END
 " ================
 
@@ -92,7 +108,8 @@ syntax enable
 set background=dark
 let g:molokai_original=1
 let g:rehash256=1
-set t_Co=256
+set term=screen-256color
+" set t_Co=256
 colorscheme molokai
 
 " Config for RuboCop
@@ -102,6 +119,12 @@ nmap <Leader>r :RuboCop<CR>
 " Show trailing whitespace and spaces before a tab:
 :highlight ExtraWhitespace ctermbg=red guibg=red
 :autocmd Syntax * syn match ExtraWhitespace /\s\+$\| \+\ze\\t/
+
+" RSpec.vim mappings
+map <Leader>t :call RunCurrentSpecFile()<CR>
+map <Leader>s :call RunNearestSpec()<CR>
+map <Leader>l :call RunLastSpec()<CR>
+map <Leader>a :call RunAllSpecs()<CR>
 
 " Lovely linenumbers
 set nu
@@ -119,17 +142,7 @@ map <leader>p :bp<CR> " \p previous buffer
 map <leader>n :bn<CR> " \n next buffer
 map <leader>d :bd<CR> " \d delete buffer
 
-let g:vroom_map_keys = 0
-let g:vroom_use_dispatch = 1
-let g:vroom_use_zeus = 1
-
-map <Leader>c :call vroom#RunTestFile()<CR>
-map <Leader>s :call vroom#RunNearestTest()<CR>
-map <leader>t :A<CR> " \t to jump to test file
-map <leader>r :r<cr> " \t to jump to related file
-map <leader>E :Explore .<cr> " \E to open file explorer in root
-map <leader>e :Explore<cr> " \e to open file explorer in current dir
-
+" Theme setup
 let g:airline_theme='luna'
 let g:airline_powerline_fonts=1
 set laststatus=2
@@ -150,8 +163,12 @@ vno v <esc>
 
 " highlight the current line
 set cursorline
+
 " Highlight active column
 set cuc cul"
+
+" Spellcheck
+set spell spelllang=en_us
 
 " Tab completion
 set wildmode=list:longest,list:full
@@ -180,6 +197,19 @@ set directory+=~/.vim/swap//
 set directory+=~/tmp//
 set directory+=.
 
+autocmd BufNewFile,BufReadPost *.md,*.mdown,*.mdwn,*.mmd set filetype=markdown
+
+" Trim white spaces
+function! StripTrailingWhiteSpace()
+  " skip for markdown
+  if &filetype =~ 'markdown'
+    return
+  endif
+  %s/\s\+$//e
+endfunction
+
+autocmd BufWritePre * call StripTrailingWhiteSpace()
+
 " viminfo stores the the state of your previous editing session
 set viminfo+=n~/.vim/viminfo
 
@@ -204,3 +234,17 @@ nnoremap :%s/:\([^ ]*\)\(\s*\)=>/\1:/g
 " Increment numbers
 nnoremap <A-a> <C-a>
 nnoremap <A-x> <C-x>
+let g:ctrlp_custom_ignore = '\v[\/](\.(git|hg|svn))$'
+let g:ctrlp_reuse_window = 'netrw\|help\|quickfix'
+let g:ctrlp_use_caching = 0
+let g:ctrlp_user_command = [
+      \ '.git',
+      \ 'cd %s && git ls-files . -co --exclude-standard',
+      \ 'find %s -type f'
+      \ ]
+let g:ctrlp_working_path_mode = 'r'
+let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_complete_in_comments = 1
+let g:ycm_complete_in_strings = 1
+Plugin 'rking/ag.vim'
