@@ -1,5 +1,6 @@
 set nocompatible " be iMproved
 
+" Running tests in tmux session Bundle 'tpope/vim-dispatch'
 " For vundle
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -32,13 +33,13 @@ Bundle 'gmarik/vundle'
 " Rails :/
 Bundle 'tpope/vim-rails.git'
 " Snippets for our use :)
-Bundle 'garbas/vim-snipmate'
-" Commenting and uncommenting stuff
 Bundle 'tomtom/tcomment_vim'
 " Beutiful solarized theme
 Bundle 'altercation/vim-colors-solarized'
 " Molokai theme
-Bundle 'tomasr/molokai'
+Bundle 'sickill/vim-monokai'
+" GruvBox theme
+Bundle 'morhetz/gruvbox'
 " Vim Ruby
 Bundle 'vim-ruby/vim-ruby'
 " Surround your code :)
@@ -53,21 +54,15 @@ Bundle 'kchmck/vim-coffee-script'
 Bundle 'kien/ctrlp.vim'
 " Easy motion for easy motion
 Bundle 'Lokaltog/vim-easymotion'
-" Running tests in tmux session Bundle 'tpope/vim-dispatch'
 " Safe pase with zsh
 Bundle 'ConradIrwin/vim-bracketed-paste'
-" vim-tags helsp to search for defined methos in the project
-Bundle 'szw/vim-tags'
-" Gist for posting code snippets on gh
-Bundle 'mattn/webapi-vim'
-Bundle 'mattn/gist-vim'
-Bundle 'danro/rename.vim'
-
-Bundle 'nono/vim-handlebars'
 Bundle 'ngmy/vim-rubocop'
 Bundle 'pangloss/vim-javascript'
 Bundle 'jelera/vim-javascript-syntax'
-Bundle 'mxw/vim-jsx'
+Bundle "fatih/vim-go"
+
+" Autocomplete
+Bundle 'Valloric/YouCompleteMe'
 
 " Autoformatting tool for RoR
 Bundle 'KurtPreston/vim-autoformat-rails'
@@ -77,9 +72,6 @@ Bundle 'scrooloose/nerdtree'
 
 " Vim-Rspec
 Bundle 'thoughtbot/vim-rspec'
-
-" Vue
-Bundle 'posva/vim-vue'
 
 set grepprg=ack-grep " Set ACK as a default grep
 set tags=./tags; " Set tags directory
@@ -99,18 +91,12 @@ augroup myfiletypes
 	autocmd FileType ruby,javascript,eruby,yaml,markdown,coffee,html,handlebars,hbs,js,vue set ai sw=2 sts=2 et
 augroup END
 " ================
-
-" Syntax highlighting and theme
-
-syntax enable
-
 " Configs to make Molokai look great
+syntax enable
 set background=dark
-let g:molokai_original=1
-let g:rehash256=1
-set term=screen-256color
-" set t_Co=256
-colorscheme molokai
+let g:gruvbox_termcolors=256
+colorscheme gruvbox
+let g:gruvbox_contrast_dark='hard'
 
 " Config for RuboCop
 let g:vimrubocop_keymap = 0
@@ -125,6 +111,12 @@ map <Leader>t :call RunCurrentSpecFile()<CR>
 map <Leader>s :call RunNearestSpec()<CR>
 map <Leader>l :call RunLastSpec()<CR>
 map <Leader>a :call RunAllSpecs()<CR>
+
+set nocompatible      " We're running Vim, not Vi!
+syntax on             " Enable syntax highlighting
+filetype on           " Enable filetype detection
+filetype indent on    " Enable filetype-specific indenting
+filetype plugin on    " Enable filetype-specific plugins
 
 " Lovely linenumbers
 set nu
@@ -142,10 +134,8 @@ map <leader>p :bp<CR> " \p previous buffer
 map <leader>n :bn<CR> " \n next buffer
 map <leader>d :bd<CR> " \d delete buffer
 
-" Theme setup
-let g:airline_theme='luna'
-let g:airline_powerline_fonts=1
-set laststatus=2
+" Airline Theme setup
+let g:airline_theme = 'gruvbox'
 
 inoremap  <Up>     <NOP>
 inoremap  <Down>   <NOP>
@@ -247,4 +237,25 @@ let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
+let g:ycm_cache_omnifunc = 0
+
+" Syntax
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_checkers_ruby = ['RuboCop', 'Ruby-lint']
+
 Plugin 'rking/ag.vim'
+set runtimepath^=~/.vim/bundle/ag
+
+set nocompatible
+filetype off
+
+let &runtimepath.=',~/.vim/bundle/ale'
+
+filetype plugin on
